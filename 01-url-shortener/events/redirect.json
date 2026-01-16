@@ -1,0 +1,18 @@
+{
+    "version": "2.0",
+    "routeKey": "GET /{code}",
+    "rawPath": "/abc123",
+    "rawQueryString": "",
+    "headers": {},
+    "requestContext": {
+        "http": {
+            "method": "GET",
+            "path": "/abc123"
+        },
+        "routeKey": "GET /{code}"
+    },
+    "pathParameters": {
+        "code": "abc123"
+    },
+    "isBase64Encoded": false
+}

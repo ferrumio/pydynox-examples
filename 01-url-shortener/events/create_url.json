@@ -1,0 +1,18 @@
+{
+    "version": "2.0",
+    "routeKey": "POST /urls",
+    "rawPath": "/urls",
+    "rawQueryString": "",
+    "headers": {
+        "content-type": "application/json"
+    },
+    "requestContext": {
+        "http": {
+            "method": "POST",
+            "path": "/urls"
+        },
+        "routeKey": "POST /urls"
+    },
+    "body": "{\"url\": \"https://example.com/very/long/path\", \"expires_in_days\": 7}",
+    "isBase64Encoded": false
+}

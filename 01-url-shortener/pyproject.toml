@@ -1,0 +1,19 @@
+[project]
+name = "url-shortener"
+version = "0.1.0"
+description = "Short links that expire automatically"
+requires-python = ">=3.13"
+dependencies = ["pydynox>=0.16.0", "aws-lambda-powertools[tracer]>=3.0.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "pytest-cov>=4.0", "ruff>=0.4"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

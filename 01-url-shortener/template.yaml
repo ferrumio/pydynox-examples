@@ -1,0 +1,76 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: URL Shortener - short links that expire automatically
+
+Globals:
+  Function:
+    Timeout: 10
+    Runtime: python3.13
+    MemorySize: 256
+    Architectures:
+      - arm64
+    Environment:
+      Variables:
+        TABLE_NAME: !Ref UrlsTable
+        LOG_LEVEL: INFO
+        POWERTOOLS_SERVICE_NAME: url-shortener
+        POWERTOOLS_METRICS_NAMESPACE: UrlShortener
+    Tracing: Active
+
+Resources:
+  UrlFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: app.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UrlsTable
+      Events:
+        CreateUrl:
+          Type: Api
+          Properties:
+            Path: /urls
+            Method: POST
+            RestApiId: !Ref UrlApi
+        GetStats:
+          Type: Api
+          Properties:
+            Path: /urls/{code}/stats
+            Method: GET
+            RestApiId: !Ref UrlApi
+        Redirect:
+          Type: Api
+          Properties:
+            Path: /{code}
+            Method: GET
+            RestApiId: !Ref UrlApi
+
+  UrlApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      TracingEnabled: true
+
+  UrlsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${AWS::StackName}-urls
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: short_code
+          AttributeType: S
+      KeySchema:
+        - AttributeName: short_code
+          KeyType: HASH
+      TimeToLiveSpecification:
+        AttributeName: expires_at
+        Enabled: true
+
+Outputs:
+  ApiUrl:
+    Description: API Gateway URL
+    Value: !Sub "https://${UrlApi}.execute-api.${AWS::Region}.amazonaws.com/prod"
+  TableName:
+    Description: DynamoDB table name
+    Value: !Ref UrlsTable
