@@ -36,7 +36,7 @@ def create_url() -> Response:
         original_url=original_url,
         expires_at=ExpiresIn.days(expires_in_days),
     )
-    url.save()
+    url.sync_save()
 
     logger.info("Created short URL", short_code=url.short_code)
 
@@ -51,7 +51,7 @@ def create_url() -> Response:
 @tracer.capture_method
 def get_stats(code: str) -> dict:
     """Get URL statistics."""
-    url = ShortUrl.get(short_code=code)
+    url = ShortUrl.sync_get(short_code=code)
     if not url:
         raise NotFoundError(f"URL not found: {code}")
 
@@ -67,12 +67,12 @@ def get_stats(code: str) -> dict:
 @tracer.capture_method
 def redirect(code: str) -> Response:
     """Redirect to original URL and increment click counter."""
-    url = ShortUrl.get(short_code=code)
+    url = ShortUrl.sync_get(short_code=code)
     if not url:
         raise NotFoundError(f"URL not found: {code}")
 
     # Atomic increment - safe even with concurrent requests
-    url.update(atomic=[ShortUrl.clicks.add(1)])
+    url.sync_update(atomic=[ShortUrl.clicks.add(1)])
 
     logger.info("Redirecting", short_code=code, clicks=url.clicks + 1)
 
